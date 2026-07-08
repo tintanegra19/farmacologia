@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farmacología · Semana 1 — Introducción</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1f2553;
+  --navy-deep:#162045;
+  --yellow:#febc11;
+  --cyan:#46c2ca;
+  --pink:#ff3898;
+  --white:#ffffff;
+  --gray:#f4f5f9;
+  --glass:rgba(255,255,255,0.07);
+  --glass-border:rgba(255,255,255,0.12);
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  color:var(--white);
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-deep) 100%);
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{font-family:'Bricolage Grotesque',sans-serif}
+
+/* ---------- barra de progreso molecular ---------- */
+.progress-bar{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;justify-content:center;gap:0;
+  padding:18px 20px;
+  background:rgba(22,32,69,0.72);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--glass-border);
+}
+.mol{display:flex;align-items:center;justify-content:center;width:100%;max-width:640px}
+.mol-node{display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;flex:0 0 auto}
+.mol-dot{
+  width:26px;height:26px;border-radius:50%;
+  background:var(--navy-deep);
+  border:2px solid rgba(255,255,255,0.28);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:rgba(255,255,255,0.55);
+  transition:all .4s ease;
+}
+.mol-label{
+  font-size:11px;color:rgba(255,255,255,0.5);
+  font-weight:500;text-align:center;max-width:90px;line-height:1.2;
+  transition:color .4s ease;
+}
+.mol-node.active .mol-dot{
+  background:var(--yellow);border-color:var(--yellow);color:var(--navy-deep);
+  box-shadow:0 0 12px var(--yellow);
+  animation:glowpulse 1.8s ease-in-out infinite;
+}
+.mol-node.active .mol-label{color:var(--yellow)}
+.mol-node.current .mol-dot{
+  border-color:var(--cyan);color:var(--cyan);
+  box-shadow:0 0 8px rgba(70,194,202,0.6);
+}
+.mol-node.current .mol-label{color:var(--cyan)}
+.mol-line{
+  height:2px;flex:1 1 auto;min-width:24px;max-width:80px;
+  background:rgba(255,255,255,0.18);
+  transition:background .4s ease;align-self:flex-start;margin-top:12px;
+}
+.mol-line.done{background:var(--yellow);box-shadow:0 0 8px rgba(254,188,17,0.5)}
+@keyframes glowpulse{0%,100%{box-shadow:0 0 8px var(--yellow)}50%{box-shadow:0 0 18px var(--yellow)}}
+
+/* ---------- secciones ---------- */
+.stage{max-width:960px;margin:0 auto;padding:40px 22px 80px}
+.section{display:none;animation:fadeUp .3s ease both}
+.section.visible{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.eyebrow{color:var(--yellow);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.hero{font-size:clamp(26px,5vw,44px);font-weight:800;line-height:1.15;margin-bottom:14px;max-width:16ch}
+.sub{color:rgba(255,255,255,0.72);font-size:clamp(15px,2.4vw,18px);line-height:1.5;max-width:60ch;margin-bottom:28px}
+
+/* ---------- glass card genérica ---------- */
+.glass{
+  background:var(--glass);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+}
+
+/* ---------- botones ---------- */
+.btn{
+  font-family:'Inter',sans-serif;font-weight:500;font-size:15px;
+  color:var(--white);cursor:pointer;
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:12px;padding:13px 20px;
+  transition:transform .1s ease,border-color .2s,background .2s;
+}
+.btn:hover{border-color:var(--cyan);background:rgba(70,194,202,0.12)}
+.btn:active{transform:scale(0.97)}
+.btn-primary{
+  background:var(--yellow);color:var(--navy-deep);font-weight:700;border:none;
+  box-shadow:0 4px 20px rgba(254,188,17,0.25);
+}
+.btn-primary:hover{background:#ffc734}
+.btn-primary:disabled{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.35);box-shadow:none;cursor:not-allowed}
+.btn-row{display:flex;justify-content:flex-end;gap:12px;margin-top:36px;flex-wrap:wrap}
+:focus-visible{outline:2.5px solid var(--cyan);outline-offset:3px;border-radius:6px}
+
+/* ---------- Sección 1: mapa SVG ---------- */
+.map-wrap{position:relative;width:100%;border-radius:var(--radius);overflow:hidden;margin-bottom:8px}
+.map-svg{display:block;width:100%;height:auto}
+.node-hit{cursor:pointer}
+.node-circle{transition:all .25s ease}
+.node-hit:hover .node-circle{stroke:var(--cyan);filter:drop-shadow(0 0 8px rgba(70,194,202,0.7))}
+.node-hit.done .node-circle{stroke:var(--yellow);fill:rgba(254,188,17,0.18);filter:drop-shadow(0 0 10px rgba(254,188,17,0.6))}
+.node-text{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;fill:var(--white);pointer-events:none}
+.panel{margin-top:20px;padding:24px;display:none;animation:fadeUp .3s ease both}
+.panel.show{display:block}
+.panel h3{font-size:22px;margin-bottom:12px;color:var(--yellow)}
+.panel .def{font-size:16px;line-height:1.55;margin-bottom:14px}
+.panel .q{font-style:italic;color:var(--cyan);font-size:15px;line-height:1.5;border-left:3px solid var(--cyan);padding-left:14px}
+.map-status{margin-top:18px;color:var(--cyan);font-weight:600;font-size:15px;opacity:0;transition:opacity .4s}
+.map-status.show{opacity:1}
+
+/* ---------- Sección 2: taxonomía ---------- */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:8px}
+.tax-card{padding:20px 16px;cursor:pointer;text-align:center;transition:transform .15s,border-color .25s;position:relative}
+.tax-card:hover{transform:translateY(-3px);border-color:var(--cyan)}
+.tax-card .sust{font-weight:700;font-size:15px;font-family:'Bricolage Grotesque',sans-serif;line-height:1.25}
+.tax-card .state{font-size:22px;margin-top:10px;min-height:26px}
+.tax-card.correct{border-color:var(--cyan);animation:pulse .5s ease}
+.tax-card.partial{border-color:var(--yellow)}
+.tax-card.wrong{border-color:var(--pink);animation:shake .4s ease}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+
+/* ---------- modal ---------- */
+.modal-bg{position:fixed;inset:0;background:rgba(10,14,32,0.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal-bg.show{display:flex;animation:fadeUp .25s ease both}
+.modal{max-width:460px;width:100%;padding:28px}
+.modal h3{font-size:20px;margin-bottom:6px}
+.modal .hint{color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:18px}
+.opts{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--glass-border);border-radius:11px;cursor:pointer;transition:all .18s;font-size:15px}
+.opt:hover{border-color:var(--cyan)}
+.opt.sel{border-color:var(--cyan);background:rgba(70,194,202,0.14)}
+.opt .box{width:20px;height:20px;border-radius:6px;border:2px solid rgba(255,255,255,0.35);flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:12px}
+.opt.sel .box{background:var(--cyan);border-color:var(--cyan);color:var(--navy-deep)}
+.fb{font-size:14.5px;line-height:1.55;padding:14px;border-radius:11px;margin-bottom:18px;display:none}
+.fb.show{display:block;animation:fadeUp .25s ease both}
+.fb.ok{background:rgba(70,194,202,0.15);border:1px solid var(--cyan)}
+.fb.mid{background:rgba(254,188,17,0.13);border:1px solid var(--yellow)}
+.fb.no{background:rgba(255,56,152,0.13);border:1px solid var(--pink)}
+
+/* ---------- Sección 3: caso ---------- */
+.story{font-size:17px;line-height:1.65;margin-bottom:22px}
+.story p{margin-bottom:14px;animation:fadeUp .4s ease both}
+.decision{padding:24px;margin-bottom:8px}
+.decision .qh{font-size:18px;font-weight:700;font-family:'Bricolage Grotesque',sans-serif;margin-bottom:16px}
+.choices{display:flex;flex-direction:column;gap:12px}
+.choice{text-align:left;line-height:1.45}
+.case-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
+.sumcard{padding:20px;border-color:var(--cyan)}
+.sumcard .ic{font-size:26px;margin-bottom:8px}
+.sumcard b{display:block;margin-bottom:4px;font-family:'Bricolage Grotesque',sans-serif}
+.sumcard span{font-size:13.5px;color:rgba(255,255,255,0.72);line-height:1.45}
+
+/* ---------- Sección 4: quiz ---------- */
+.qcount{color:var(--cyan);font-weight:600;font-size:14px;margin-bottom:8px}
+.qtext{font-size:20px;font-weight:700;font-family:'Bricolage Grotesque',sans-serif;line-height:1.35;margin-bottom:20px}
+.quiz-fb{margin-top:18px}
+.result{text-align:center;padding:44px 24px}
+.result .score{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(48px,12vw,84px);line-height:1}
+.result .msg{font-size:18px;line-height:1.5;margin:14px auto 24px;max-width:44ch}
+.next-week{padding:16px 20px;border-color:var(--yellow);font-size:15px;line-height:1.5;margin:0 auto 24px;max-width:52ch}
+.confetti{position:fixed;top:-12px;width:9px;height:16px;z-index:200;pointer-events:none;opacity:0}
+
+@media (max-width:720px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .case-summary{grid-template-columns:1fr}
+  .mol-label{font-size:9px;max-width:60px}
+  .mol-dot{width:22px;height:22px}
+  .stage{padding:28px 16px 70px}
+}
+@media (max-width:380px){
+  .mol-label{display:none}
+  .mol-line{margin-top:11px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- barra molecular -->
+<div class="progress-bar">
+  <div class="mol" id="mol"></div>
+</div>
+
+<div class="stage">
+
+<!-- ================= SECCIÓN 1 ================= -->
+<section class="section visible" id="sec-1">
+  <div class="eyebrow">Semana 1 · Introducción a la Farmacología</div>
+  <h1 class="hero">Antes de memorizar un solo fármaco 💊, necesitas ver el mapa completo.</h1>
+  <p class="sub">Toca cada nodo del mapa para descubrir de qué se ocupa. Cuando explores los 5, podrás continuar.</p>
+
+  <div class="map-wrap glass">
+    <svg class="map-svg" viewBox="0 0 760 440" id="mapsvg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mapa conceptual de la farmacología">
+      <defs>
+        <radialGradient id="bgrad" cx="50%" cy="30%" r="80%">
+          <stop offset="0%" stop-color="#233066"/>
+          <stop offset="100%" stop-color="#131d40"/>
+        </radialGradient>
+      </defs>
+      <rect width="760" height="440" fill="url(#bgrad)"/>
+      <g id="particles"></g>
+      <!-- líneas -->
+      <g stroke="rgba(255,255,255,0.28)" stroke-width="2">
+        <line x1="380" y1="80" x2="180" y2="200"/>
+        <line x1="380" y1="80" x2="380" y2="200"/>
+        <line x1="380" y1="80" x2="580" y2="200"/>
+        <line x1="380" y1="200" x2="380" y2="330"/>
+      </g>
+      <!-- nodos -->
+      <g class="node-hit" data-node="0" tabindex="0" role="button" aria-label="Farmacología">
+        <circle class="node-circle" cx="380" cy="80" r="52" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+        <text class="node-text" x="380" y="85" text-anchor="middle" font-size="15">Farmacología</text>
+      </g>
+      <g class="node-hit" data-node="1" tabindex="0" role="button" aria-label="Farmacocinética">
+        <circle class="node-circle" cx="180" cy="200" r="50" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+        <text class="node-text" x="180" y="197" text-anchor="middle" font-size="12.5">Farmaco-</text>
+        <text class="node-text" x="180" y="212" text-anchor="middle" font-size="12.5">cinética</text>
+      </g>
+      <g class="node-hit" data-node="2" tabindex="0" role="button" aria-label="Farmacodinamia">
+        <circle class="node-circle" cx="380" cy="200" r="50" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+        <text class="node-text" x="380" y="197" text-anchor="middle" font-size="12.5">Farmaco-</text>
+        <text class="node-text" x="380" y="212" text-anchor="middle" font-size="12.5">dinamia</text>
+      </g>
+      <g class="node-hit" data-node="3" tabindex="0" role="button" aria-label="Farmacoterapia">
+        <circle class="node-circle" cx="580" cy="200" r="50" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+        <text class="node-text" x="580" y="197" text-anchor="middle" font-size="12.5">Farmaco-</text>
+        <text class="node-text" x="580" y="212" text-anchor="middle" font-size="12.5">terapia</text>
+      </g>
+      <g class="node-hit" data-node="4" tabindex="0" role="button" aria-label="Toxicología">
+        <circle class="node-circle" cx="380" cy="330" r="50" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+        <text class="node-text" x="380" y="335" text-anchor="middle" font-size="13">Toxicología</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="panel glass" id="node-panel"></div>
+  <div class="map-status" id="map-status">Mapa completo ✅ — ya puedes continuar.</div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="next-1" disabled>Siguiente →</button>
+  </div>
+</section>
+
+<!-- ================= SECCIÓN 2 ================= -->
+<section class="section" id="sec-2">
+  <div class="eyebrow">Sección 2 · Taxonomía</div>
+  <h2 class="hero">Clasifica estas sustancias. No siempre es tan obvio como parece 🤔</h2>
+  <p class="sub">Una misma sustancia puede ser varias cosas a la vez. Depende del contexto, la dosis y quién la usa.</p>
+  <div class="grid" id="tax-grid"></div>
+  <div class="btn-row">
+    <button class="btn" data-back="1">← Atrás</button>
+    <button class="btn btn-primary" id="next-2" disabled>Siguiente →</button>
+  </div>
+</section>
+
+<!-- ================= SECCIÓN 3 ================= -->
+<section class="section" id="sec-3">
+  <div class="eyebrow">Sección 3 · Caso clínico</div>
+  <h2 class="hero">Valentina tiene dolor de cabeza 🤕</h2>
+  <div id="case-flow"></div>
+  <div class="btn-row" id="case-nav" style="display:none">
+    <button class="btn" data-back="2">← Atrás</button>
+    <button class="btn btn-primary" id="next-3" disabled>Siguiente →</button>
+  </div>
+</section>
+
+<!-- ================= SECCIÓN 4 ================= -->
+<section class="section" id="sec-4">
+  <div class="eyebrow">Sección 4 · Autoevaluación</div>
+  <h2 class="hero">¿Qué tan bien quedó el mapa? 🗺️</h2>
+  <p class="sub">6 preguntas. Sin trampa — la retroalimentación explica el mecanismo, no solo si acertaste.</p>
+  <div id="quiz-flow"></div>
+</section>
+
+</div>
+
+<!-- ============ modal taxonomía ============ -->
+<div class="modal-bg" id="modal">
+  <div class="modal glass">
+    <h3 id="m-title"></h3>
+    <div class="hint">Selecciona todas las categorías que apliquen.</div>
+    <div class="opts" id="m-opts"></div>
+    <div class="fb" id="m-fb"></div>
+    <div class="btn-row" style="margin-top:8px">
+      <button class="btn" id="m-close">Cerrar</button>
+      <button class="btn btn-primary" id="m-confirm">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= DATOS ================= */
+const SECTIONS = ['Mapa conceptual','Taxonomía','Caso clínico','Autoevaluación'];
+
+const NODES = [
+ {t:'Farmacología', d:'La ciencia que estudia cómo las sustancias químicas interactúan con los organismos vivos — y por qué eso importa antes de cualquier prescripción.', q:'¿Qué tienen en común la morfina, la cafeína y el alcohol? Más de lo que crees. ☕'},
+ {t:'Farmacocinética', d:'Lo que el cuerpo <em>hace</em> con el fármaco: absorción, distribución, metabolismo, excreción. ADME.', q:'¿Por qué el paracetamol oral tarda 30 min en hacer efecto pero el IV es casi inmediato? 🕐'},
+ {t:'Farmacodinamia', d:'Lo que el fármaco <em>hace</em> con el cuerpo: mecanismo de acción, receptores, efecto.', q:'¿Por qué la morfina alivia el dolor pero también produce euforia con el mismo receptor? 🧠'},
+ {t:'Farmacoterapia', d:'El arte de usar fármacos de forma racional: el fármaco correcto, a la dosis correcta, en el paciente correcto.', q:'¿Cuándo es más valiente NO prescribir un antibiótico? 💊'},
+ {t:'Toxicología', d:'"La dosis hace el veneno" — Paracelso, siglo XVI. Toda sustancia es tóxica en cantidad suficiente.', q:'El agua en dosis de ~6 litros puede matar. El paracetamol a 10 g destruye el hígado. La dosis lo es todo. ⚠️'}
+];
+
+const CATS = ['Fármaco','Medicamento','Droga','Tóxico'];
+const TAX = [
+ {s:'Paracetamol 500 mg tableta', ok:['Fármaco','Medicamento'], fb:'Exacto: el principio activo (fármaco) en una forma lista para usar (medicamento). No son sinónimos.'},
+ {s:'Alcohol etílico al 70%', ok:['Fármaco','Tóxico'], fb:'El mismo etanol que desinfecta heridas destruye hepatocitos en dosis altas. ¿Cambia la molécula? No. ¿Cambia el efecto? Todo.'},
+ {s:'Heroína', ok:['Droga','Fármaco'], fb:'Incómodo dato: la diacetilmorfina se usó clínicamente. Hoy es ilegal en México, pero sigue siendo un opioide. Las categorías son más porosas de lo que parecen.'},
+ {s:'Vitamina C 1000 mg', ok:['Fármaco','Medicamento'], fb:'A dosis nutricionales es vitamina. A 1000 mg tiene acciones farmacológicas documentadas. La dosis hace al fármaco también aquí.'},
+ {s:'Veneno de alacrán', ok:['Tóxico'], fb:'Por ahora solo tóxico — aunque sus péptidos están siendo investigados como futuros fármacos. La toxicología y la farmacología son primas cercanas.'},
+ {s:'Insulina glargina', ok:['Fármaco','Medicamento'], fb:'Una proteína con acción farmacológica precisa sobre receptores de insulina. Que sea "natural" no la hace menos fármaco.'},
+ {s:'Cafeína', ok:['Fármaco','Droga'], fb:'La droga psicoactiva más consumida del mundo 🌍. Antagonista de receptores de adenosina, produce tolerancia y síndrome de abstinencia. ¿Cuántos cafés llevas hoy?'},
+ {s:'Flúor en pasta dental', ok:['Fármaco'], fb:'A concentraciones terapéuticas remineraliza el esmalte. Ingerido en cantidad produce fluorosis. Paracelso saludando de nuevo.'}
+];
+
+const QUIZ = [
+ {q:'¿Cuál es la diferencia principal entre fármaco y medicamento?',
+  o:['El fármaco tiene efecto terapéutico; el medicamento no necesariamente',
+     'El medicamento es el fármaco formulado en una forma farmacéutica lista para administrar',
+     'Son sinónimos — la farmacología los usa indistintamente'],
+  a:1,
+  ok:'Correcto. El ibuprofeno es un fármaco. El ibuprofeno 400 mg tableta recubierta es un medicamento. La distinción importa en prescripción, regulación y farmacovigilancia.',
+  no:'¿Puedes administrar un fármaco sin forma farmacéutica? ¿Cómo le darías paracetamol a alguien sin fabricar una tableta, jarabe o supositorio? Esa diferencia es el medicamento.'},
+ {q:'"La dosis hace el veneno" — Paracelso, siglo XVI. ¿A qué principio farmacológico se refiere?',
+  o:['Que todos los fármacos son intrínsecamente tóxicos',
+     'Que la toxicidad depende de la cantidad administrada, no de la naturaleza de la sustancia',
+     'Que los venenos naturales son más peligrosos que los sintéticos por su complejidad molecular'],
+  a:1,
+  ok:'Exacto. El mismo principio que hace al paracetamol analgésico a 500 mg lo hace hepatotóxico a 10 g. La molécula no cambió — cambió la dosis.',
+  no:'Si todos los fármacos fueran intrínsecamente tóxicos, ninguno podría usarse. Paracelso decía algo más fino: la toxicidad es una función de la dosis, no una propiedad fija de la sustancia. ¿Qué cantidad de agua sería letal?'},
+ {q:'Una paciente toma metformina para diabetes tipo 2. La metformina se elimina casi sin metabolizar por el riñón. ¿Qué rama estudia ese proceso?',
+  o:['Farmacodinamia — estudia todos los efectos del fármaco en el organismo',
+     'Farmacoterapia — incluye cómo se maneja el fármaco clínicamente',
+     'Farmacocinética — específicamente la fase de excreción renal'],
+  a:2,
+  ok:'Correcto. Eliminación = farmacocinética. Dato clínico relevante: en insuficiencia renal, la metformina se acumula y puede causar acidosis láctica. La farmacocinética no es solo teoría.',
+  no:'¿Recuerdas la diferencia entre lo que el fármaco hace al cuerpo vs. lo que el cuerpo hace al fármaco? La eliminación renal es el cuerpo actuando sobre el fármaco.'},
+ {q:'El paracetamol inhibe la síntesis de prostaglandinas en el SNC, lo que reduce la percepción del dolor. Eso corresponde a:',
+  o:['Farmacocinética — describe el recorrido del fármaco por el organismo',
+     'Farmacodinamia — describe el mecanismo de acción y el efecto producido',
+     'Toxicología — porque toda inhibición enzimática tiene potencial dañino'],
+  a:1,
+  ok:'Exacto. Mecanismo de acción + efecto = farmacodinamia. El "qué hace el fármaco al cuerpo" — en este caso, inhibir COX central y reducir el dolor.',
+  no:'Cuidado con la lógica de la opción C 😄 — si toda inhibición enzimática fuera toxicología, casi ningún fármaco tendría mecanismo de acción válido. La toxicología estudia los efectos adversos, no el mecanismo terapéutico.'},
+ {q:'¿Cuál de estas sustancias puede clasificarse simultáneamente como fármaco Y tóxico?',
+  o:['Agua destilada para inyección — estéril y sin propiedades farmacológicas propias',
+     'Paracetamol en sobredosis — fármaco a dosis terapéutica, hepatotóxico en exceso',
+     'Solución glucosada isotónica al 5% — nutriente parenteral sin acción farmacológica directa'],
+  a:1,
+  ok:'Correcto. El paracetamol en sobredosis genera NAPQI, un metabolito hepatotóxico que agota el glutatión. La misma molécula, dos efectos opuestos según la dosis. Paracelso otra vez.',
+  no:'Piensa en términos de dosis. La línea entre el efecto terapéutico y el tóxico del paracetamol es justo lo que define su margen terapéutico. ¿Cuál de las tres tiene acción farmacológica propia?'},
+ {q:'La prescripción razonada implica seleccionar el fármaco más eficaz con el menor riesgo para un paciente específico. ¿A qué rama corresponde ese principio?',
+  o:['Farmacoterapia — la aplicación clínica racional del conocimiento farmacológico',
+     'Farmacocinética — que estudia los parámetros de absorción y eliminación',
+     'Farmacodinamia — que estudia los mecanismos de acción sobre receptores'],
+  a:0,
+  ok:'Exacto. La farmacoterapia integra farmacocinética + farmacodinamia + contexto clínico para tomar decisiones. Es la rama más cercana a lo que harás como médico todos los días.',
+  no:'Farmacocinética y farmacodinamia son los fundamentos — pero la prescripción razonada vive en la farmacoterapia, que los integra y los aplica al paciente real.'}
+];
+
+/* ================= ESTADO ================= */
+let current = 0;                 // sección visible (0-3)
+const done = [false,false,false,false];
+const visitedNodes = new Set();
+const taxState = TAX.map(()=>({solved:false}));
+
+/* ================= BARRA MOLECULAR ================= */
+const molEl = document.getElementById('mol');
+function renderMol(){
+  molEl.innerHTML='';
+  SECTIONS.forEach((label,i)=>{
+    const node=document.createElement('div');
+    node.className='mol-node'+(done[i]?' active':'')+(i===current?' current':'');
+    node.innerHTML=`<div class="mol-dot">${done[i]?'✓':(i+1)}</div><div class="mol-label">${label}</div>`;
+    molEl.appendChild(node);
+    if(i<SECTIONS.length-1){
+      const line=document.createElement('div');
+      line.className='mol-line'+(done[i]?' done':'');
+      molEl.appendChild(line);
+    }
+  });
+}
+
+/* ================= NAVEGACIÓN ================= */
+function show(i){
+  current=i;
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('visible'));
+  const sec=document.getElementById('sec-'+(i+1));
+  sec.classList.add('visible');
+  renderMol();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(i===3) startQuiz();
+}
+document.querySelectorAll('[data-back]').forEach(b=>{
+  b.addEventListener('click',()=>show(parseInt(b.dataset.back)-1));
+});
+document.getElementById('next-1').addEventListener('click',()=>{done[0]=true;show(1);});
+document.getElementById('next-2').addEventListener('click',()=>{done[1]=true;show(2);});
+document.getElementById('next-3').addEventListener('click',()=>{done[2]=true;show(3);});
+
+/* ================= SECCIÓN 1: MAPA ================= */
+// partículas
+const pg=document.getElementById('particles');
+for(let i=0;i<22;i++){
+  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  const x=Math.random()*760, y=Math.random()*440, r=1+Math.random()*3;
+  c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',r);
+  c.setAttribute('fill','#ffffff');c.setAttribute('opacity','0.12');
+  const dur=(6+Math.random()*8).toFixed(1);
+  const dy=(10+Math.random()*20).toFixed(0);
+  const an=document.createElementNS('http://www.w3.org/2000/svg','animate');
+  an.setAttribute('attributeName','cy');
+  an.setAttribute('values',`${y};${y-dy};${y}`);
+  an.setAttribute('dur',dur+'s');an.setAttribute('repeatCount','indefinite');
+  c.appendChild(an);pg.appendChild(c);
+}
+
+const panel=document.getElementById('node-panel');
+function openNode(idx,el){
+  const n=NODES[idx];
+  panel.innerHTML=`<h3>${n.t}</h3><div class="def">${n.d}</div><div class="q">${n.q}</div>`;
+  panel.classList.add('show');
+  visitedNodes.add(idx);
+  el.classList.add('done');
+  if(visitedNodes.size===5){
+    document.getElementById('map-status').classList.add('show');
+    document.getElementById('next-1').disabled=false;
+  }
+}
+document.querySelectorAll('.node-hit').forEach(g=>{
+  const idx=parseInt(g.dataset.node);
+  g.addEventListener('click',()=>openNode(idx,g));
+  g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openNode(idx,g);}});
+});
+
+/* ================= SECCIÓN 2: TAXONOMÍA ================= */
+const grid=document.getElementById('tax-grid');
+TAX.forEach((t,i)=>{
+  const card=document.createElement('div');
+  card.className='tax-card glass';card.dataset.i=i;card.tabIndex=0;
+  card.setAttribute('role','button');
+  card.innerHTML=`<div class="sust">${t.s}</div><div class="state"></div>`;
+  card.addEventListener('click',()=>openModal(i));
+  card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openModal(i);}});
+  grid.appendChild(card);
+});
+
+const modal=document.getElementById('modal');
+const mOpts=document.getElementById('m-opts');
+const mFb=document.getElementById('m-fb');
+let modalIdx=null, selected=new Set();
+
+function openModal(i){
+  modalIdx=i;selected=new Set();
+  document.getElementById('m-title').textContent=TAX[i].s;
+  mFb.className='fb';mFb.textContent='';
+  document.getElementById('m-confirm').style.display='';
+  mOpts.innerHTML='';
+  CATS.forEach(c=>{
+    const o=document.createElement('div');
+    o.className='opt';o.dataset.c=c;o.tabIndex=0;
+    o.innerHTML=`<span class="box"></span>${c}`;
+    const toggle=()=>{
+      if(selected.has(c)){selected.delete(c);o.classList.remove('sel');o.querySelector('.box').textContent='';}
+      else{selected.add(c);o.classList.add('sel');o.querySelector('.box').textContent='✓';}
+    };
+    o.addEventListener('click',toggle);
+    o.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+    mOpts.appendChild(o);
+  });
+  modal.classList.add('show');
+}
+document.getElementById('m-close').addEventListener('click',()=>modal.classList.remove('show'));
+modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('show');});
+
+document.getElementById('m-confirm').addEventListener('click',()=>{
+  if(selected.size===0)return;
+  const ok=new Set(TAX[modalIdx].ok);
+  const sel=selected;
+  const allRight=[...ok].every(x=>sel.has(x));
+  const noExtra=[...sel].every(x=>ok.has(x));
+  const card=grid.querySelector(`[data-i="${modalIdx}"]`);
+  const st=card.querySelector('.state');
+  card.classList.remove('correct','partial','wrong');
+  let cls,icon;
+  if(allRight&&noExtra){
+    cls='ok';icon='✅';card.classList.add('correct');st.textContent='✅';
+    taxState[modalIdx].solved=true;
+    mFb.className='fb show ok';
+    mFb.innerHTML='✅ '+TAX[modalIdx].fb;
+    document.getElementById('m-confirm').style.display='none';
+    setTimeout(()=>modal.classList.remove('show'),1600);
+  } else if(allRight||[...sel].some(x=>ok.has(x))){
+    cls='mid';card.classList.add('partial');st.textContent='💡';
+    mFb.className='fb show mid';
+    mFb.innerHTML='💡 Casi. Revisa las categorías: falta o sobra alguna. '+TAX[modalIdx].fb;
+    taxState[modalIdx].solved=true; // cuenta como resuelta tras ver el matiz
+  } else {
+    cls='no';card.classList.add('wrong');st.textContent='❌';
+    mFb.className='fb show no';
+    mFb.innerHTML='❌ Ninguna coincide. Antes de reintentar: ¿esta sustancia actúa sobre el organismo, se administra con fin terapéutico, se usa recreativamente o daña en dosis suficiente? '+TAX[modalIdx].fb;
+    taxState[modalIdx].solved=true;
+  }
+  checkTaxDone();
+});
+
+function checkTaxDone(){
+  if(taxState.every(t=>t.solved)){
+    document.getElementById('next-2').disabled=false;
+  }
+}
+
+/* ================= SECCIÓN 3: CASO ================= */
+const caseFlow=document.getElementById('case-flow');
+function el(html){const d=document.createElement('div');d.innerHTML=html;return d.firstElementChild;}
+function scrollCase(node){node.scrollIntoView({behavior:'smooth',block:'center'});}
+
+function buildCase(){
+  caseFlow.innerHTML='';
+  caseFlow.appendChild(el(`<div class="story glass" style="padding:22px"><p>Valentina, 22 años, estudiante de medicina en la UNAM. Lleva 6 horas con cefalea tensional — combinación perfecta de pantalla, estrés y falta de sueño. Va a la farmacia.</p></div>`));
+  addDecision1();
+}
+
+function addDecision1(){
+  const box=el(`<div class="decision glass"><div class="qh">Decisión 1 · ¿Qué le recomiendas?</div><div class="choices" id="d1"></div></div>`);
+  caseFlow.appendChild(box);
+  const c=box.querySelector('#d1');
+  const opts=[
+    {t:'A) Paracetamol 500 mg tableta oral',correct:true},
+    {t:'B) Ketorolaco inyectable 30 mg',fb:'Efectivo 💉 — nadie lo duda. Pero antes de continuar: ¿qué pasaría si Valentina tuviera gastritis? ¿Y si fuera la primera semana de embarazo? ¿Sigue siendo tu primera elección? La potencia no siempre equivale a la indicación correcta.'},
+    {t:'C) Decirle que tome agua y descanse',fb:'Válido clínicamente en muchos casos 💧. Pero Valentina eligió venir a una farmacia — ya tomó una decisión. La pregunta real es: ¿cuándo sí se justifica un fármaco y cuándo es mejor no darlo? Esa tensión va a acompañarte toda la carrera.'}
+  ];
+  renderChoices(c,opts,box,()=>{
+    box.querySelector('.choices').style.pointerEvents='none';
+    caseFlow.appendChild(el(`<div class="story"><p>Valentina toma el paracetamol con un vaso de agua y espera. A los 35 minutos empieza a sentir alivio.</p></div>`));
+    addDecision2();
+  });
+}
+
+function addDecision2(){
+  const box=el(`<div class="decision glass"><div class="qh">Decisión 2 · ¿Por qué tardó ~35 minutos en hacer efecto?</div><div class="choices" id="d2"></div></div>`);
+  caseFlow.appendChild(box);scrollCase(box);
+  const c=box.querySelector('#d2');
+  const opts=[
+    {t:'A) Porque tuvo que absorberse en el intestino y distribuirse hasta el SNC',correct:true,ok:'Exacto. Acaba de pasar por absorción, distribución y llegó a su blanco. Eso tiene un nombre: farmacocinética. Lo verás en detalle la próxima semana.'},
+    {t:'B) Porque el efecto placebo tarda ese tiempo',fb:'Interesante hipótesis 🤔 — el placebo existe y es poderoso. Pero hay un proceso físico-químico real sucediendo: el fármaco viaja desde el intestino hasta el cerebro. ¿Cuántos pasos crees que implica ese viaje?'},
+    {t:'C) Porque la tableta tardó en disolverse',fb:'Eso también contribuye — se llama velocidad de disolución. Pero es solo el primer paso de varios. ¿Qué pasa después de que el fármaco se disuelve?'}
+  ];
+  renderChoices(c,opts,box,()=>{
+    box.querySelector('.choices').style.pointerEvents='none';
+    caseFlow.appendChild(el(`<div class="story"><p>Al día siguiente, Valentina tiene otra cefalea. Decide tomar 3 tabletas de una vez. "Total, es paracetamol — es seguro", piensa.</p></div>`));
+    addDecision3();
+  });
+}
+
+function addDecision3(){
+  const box=el(`<div class="decision glass"><div class="qh">Decisión 3 · ¿Qué le dices?</div><div class="choices" id="d3"></div></div>`);
+  caseFlow.appendChild(box);scrollCase(box);
+  const c=box.querySelector('#d3');
+  const opts=[
+    {t:'A) Que mayor dosis no prolonga el efecto — solo aumenta la toxicidad',correct:true,ok:'Correcto. El paracetamol a dosis altas es hepatotóxico — uno de los principales motivos de trasplante hepático donde se vende sin receta. "Es seguro" es verdad... en la dosis correcta. La dosis lo es todo.'},
+    {t:'B) Que está bien, el paracetamol es ampliamente seguro',fb:'"Ampliamente seguro" en dosis terapéuticas, sí. Pero el paracetamol es la primera causa de insuficiencia hepática aguda por medicamento en países anglosajones 🏥. ¿Sigue pareciendo una afirmación completa?'},
+    {t:'C) Que mejor cambie a ibuprofeno que es más potente',fb:'¿Más potente para qué exactamente? Ibuprofeno y paracetamol tienen mecanismos distintos, perfiles de RAM distintos, contraindicaciones distintas. "Más potente" no es un criterio farmacológico válido sin contexto. ¿En qué paciente el ibuprofeno sería la peor elección posible?'}
+  ];
+  renderChoices(c,opts,box,()=>{
+    box.querySelector('.choices').style.pointerEvents='none';
+    addCaseSummary();
+  });
+}
+
+function addCaseSummary(){
+  const box=el(`<div class="glass" style="padding:24px;margin-top:8px">
+    <p style="font-size:17px;line-height:1.5;margin-bottom:6px">Sin saberlo, acabas de usar tres conceptos centrales de la farmacología:</p>
+    <div class="case-summary">
+      <div class="sumcard glass"><div class="ic">💊</div><b>Absorción oral</b><span>El fármaco viaja antes de actuar</span></div>
+      <div class="sumcard glass"><div class="ic">📈</div><b>Dosis-respuesta</b><span>Más dosis ≠ mejor efecto</span></div>
+      <div class="sumcard glass"><div class="ic">⚠️</div><b>Toxicidad</b><span>Todo fármaco tiene un límite</span></div>
+    </div>
+    <p style="color:rgba(255,255,255,0.72);line-height:1.5">Los estudiarás formalmente en las próximas semanas. Ya tienes el contexto.</p>
+  </div>`);
+  caseFlow.appendChild(box);scrollCase(box);
+  document.getElementById('case-nav').style.display='flex';
+  document.getElementById('next-3').disabled=false;
+  document.getElementById('next-3').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function renderChoices(container,opts,box,onCorrect){
+  const fbEl=el('<div class="fb" style="margin-top:6px"></div>');
+  opts.forEach(o=>{
+    const b=document.createElement('button');
+    b.className='btn choice';b.textContent=o.t;
+    b.addEventListener('click',()=>{
+      if(o.correct){
+        fbEl.className='fb show ok';fbEl.innerHTML='✅ '+(o.ok||'Correcto.');
+        if(!container.contains(fbEl))container.after(fbEl);
+        onCorrect();
+      } else {
+        fbEl.className='fb show mid';
+        fbEl.innerHTML='🤔 '+o.fb+'<div style="margin-top:12px"><button class="btn back-q">Entendido, seguir →</button></div>';
+        if(!container.contains(fbEl))container.after(fbEl);
+        fbEl.querySelector('.back-q').addEventListener('click',()=>{fbEl.className='fb';fbEl.innerHTML='';});
+      }
+    });
+    container.appendChild(b);
+  });
+}
+
+/* ================= SECCIÓN 4: QUIZ ================= */
+const quizFlow=document.getElementById('quiz-flow');
+let qIdx=0, correctCount=0;
+
+function startQuiz(){qIdx=0;correctCount=0;renderQuestion();}
+
+function renderQuestion(){
+  const item=QUIZ[qIdx];
+  quizFlow.innerHTML='';
+  const box=el(`<div class="glass" style="padding:26px">
+    <div class="qcount">Pregunta ${qIdx+1} de ${QUIZ.length}</div>
+    <div class="qtext">${item.q}</div>
+    <div class="choices" id="qopts"></div>
+    <div class="quiz-fb fb" id="qfb"></div>
+    <div class="btn-row" id="qnav" style="display:none"></div>
+  </div>`);
+  quizFlow.appendChild(box);
+  const opts=box.querySelector('#qopts');
+  const fb=box.querySelector('#qfb');
+  let answered=false;
+  item.o.forEach((txt,i)=>{
+    const b=document.createElement('button');
+    b.className='btn choice';b.textContent=txt;
+    b.addEventListener('click',()=>{
+      if(answered)return;answered=true;
+      const buttons=opts.querySelectorAll('button');
+      if(i===item.a){
+        correctCount++;
+        b.style.borderColor='var(--cyan)';b.style.background='rgba(70,194,202,0.16)';
+        fb.className='quiz-fb fb show ok';fb.innerHTML='✅ '+item.ok;
+      } else {
+        b.style.borderColor='var(--pink)';b.style.background='rgba(255,56,152,0.14)';
+        b.style.animation='shake .4s ease';
+        fb.className='quiz-fb fb show no';fb.innerHTML='❌ '+item.no;
+        buttons[item.a].style.borderColor='var(--cyan)';
+      }
+      buttons.forEach(x=>x.disabled=true);
+      const nav=box.querySelector('#qnav');nav.style.display='flex';
+      const nb=document.createElement('button');
+      nb.className='btn btn-primary';
+      nb.textContent=qIdx<QUIZ.length-1?'Siguiente pregunta →':'Ver resultado →';
+      nb.addEventListener('click',()=>{qIdx++;qIdx<QUIZ.length?renderQuestion():showResult();});
+      nav.appendChild(nb);
+    });
+    opts.appendChild(b);
+  });
+}
+
+function showResult(){
+  done[3]=true;renderMol();
+  const pct=Math.round(correctCount/QUIZ.length*100);
+  let color,msg;
+  if(correctCount>=5){color='var(--cyan)';msg='Sólido 💪 — tienes el mapa conceptual claro. La semana 2 empieza donde esto termina.';confetti();}
+  else if(correctCount>=3){color='var(--yellow)';msg='Buen intento 🤔 — algunos conceptos necesitan otra vuelta. Puedes releer el mapa de la Sección 1 antes de la próxima clase.';}
+  else{color='var(--pink)';msg='Tranquil@ — esta semana es solo el mapa, no el territorio. Regresa a la Sección 1 y luego vuelve aquí.';}
+  quizFlow.innerHTML='';
+  const box=el(`<div class="glass result">
+    <div class="score" style="color:${color}">${correctCount}/${QUIZ.length}</div>
+    <div class="msg">${msg}</div>
+    <div class="glass next-week">📅 <b>Semana 2: Farmacocinética</b> — el viaje del fármaco por tu cuerpo. ADME en profundidad.</div>
+    <div><button class="btn" id="restart">↩ Volver al inicio</button></div>
+  </div>`);
+  quizFlow.appendChild(box);
+  box.querySelector('#restart').addEventListener('click',restart);
+}
+
+function confetti(){
+  const colors=['#febc11','#46c2ca','#ff3898','#ffffff'];
+  for(let i=0;i<70;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=colors[i%colors.length];
+    c.style.borderRadius=Math.random()>0.5?'50%':'2px';
+    document.body.appendChild(c);
+    const dur=2.2+Math.random()*1.8;
+    const rot=Math.random()*720;
+    c.animate([
+      {transform:'translateY(0) rotate(0deg)',opacity:1},
+      {transform:`translateY(105vh) rotate(${rot}deg)`,opacity:0.9}
+    ],{duration:dur*1000,easing:'cubic-bezier(.3,.6,.5,1)',delay:Math.random()*600});
+    setTimeout(()=>c.remove(),dur*1000+700);
+  }
+}
+
+function restart(){
+  done.fill(false);visitedNodes.clear();
+  taxState.forEach(t=>t.solved=false);
+  document.getElementById('next-1').disabled=true;
+  document.getElementById('next-2').disabled=true;
+  document.getElementById('next-3').disabled=true;
+  document.getElementById('map-status').classList.remove('show');
+  panel.classList.remove('show');panel.innerHTML='';
+  document.querySelectorAll('.node-hit').forEach(g=>g.classList.remove('done'));
+  grid.querySelectorAll('.tax-card').forEach(c=>{c.classList.remove('correct','partial','wrong');c.querySelector('.state').textContent='';});
+  document.getElementById('case-nav').style.display='none';
+  buildCase();
+  show(0);
+}
+
+/* ================= INIT ================= */
+renderMol();
+buildCase();
+</script>
+</body>
+</html>
